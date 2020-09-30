@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <winsock2.h>
 #include <string>
-#include <iostream> 
+#include <iostream>
 using namespace std;
 #pragma region Functions
 string parsefileName(string str)
@@ -18,7 +18,7 @@ string parsefileName(string str)
 
 int main()
 {
-   #pragma region Сonnect
+#pragma region Сonnect
    WORD ver = MAKEWORD(2, 2);
    WSADATA wsaData;
    int retVal = 0;
@@ -49,38 +49,49 @@ int main()
    SOCKADDR_IN serverInfo;
    serverInfo.sin_family = PF_INET;
    serverInfo.sin_addr.S_un.S_addr = inet_addr(ip.c_str());
-   serverInfo.sin_port = htons(3114);
+   serverInfo.sin_port = htons(2006);
 
    retVal = connect(clientSock, (LPSOCKADDR)&serverInfo, sizeof(serverInfo));
    if (retVal == SOCKET_ERROR)
    {
       printf("Unable to connect\n");
+      closesocket(clientSock);
       WSACleanup();
       system("pause");
       return 1;
    }
    printf("Connection made sucessfully\n");
 #pragma endregion
-   #pragma region Client Logic
-   printf("Enter filename or 's'\n");
-   TCHAR pBuf[256];
-   gets_s((char*)pBuf, 256);
+#pragma region Client Logic
+   printf("Enter filename or ':s'\n");
+   char pBuf[256];
+   gets_s(pBuf, 256);
    printf("Sending request from client\n");
-   //Отсылаем данные на сервер
+
    retVal = send(clientSock, (char*)pBuf, strlen((char*)pBuf), 0);
    if (retVal == SOCKET_ERROR)
    {
       printf("Unable to send\n");
+      closesocket(clientSock);
       WSACleanup();
       system("pause");
       return 1;
    }
    char szResponse[256];
-
    retVal = recv(clientSock, szResponse, 256, 0);
+
+   if (pBuf[0] == ':' && pBuf[1] == 's')
+   {
+      printf_s(szResponse, sizeof(szResponse));
+      closesocket(clientSock);
+      WSACleanup();
+      return 0;
+   }
+
    if (szResponse[0] == 'E')
    {
       printf("File not found.\n");
+      closesocket(clientSock);
       WSACleanup();
       system("pause");
       return 1;
@@ -88,6 +99,7 @@ int main()
    if (retVal == SOCKET_ERROR)
    {
       printf("Unable to recv\n");
+      closesocket(clientSock);
       WSACleanup();
       system("pause");
       return 1;
@@ -95,7 +107,7 @@ int main()
    int i = 0;
    string buff((char*)pBuf);
    buff = parsefileName(buff);
-   
+
    FILE* fd = fopen(buff.c_str(), "wb");
    int datasize = -1;
    while (datasize != 0)
@@ -103,13 +115,12 @@ int main()
       datasize = recv(clientSock, (char*)pBuf, sizeof(pBuf), 0);
       fwrite(&pBuf, 1, datasize, fd);
    }
-   #pragma endregion
-   #pragma region Cleanup
+#pragma endregion
+#pragma region Cleanup
    fclose(fd);
    closesocket(clientSock);
    WSACleanup();
-   #pragma endregion
+#pragma endregion
    system("pause");
    return 0;
 }
-

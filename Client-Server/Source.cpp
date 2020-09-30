@@ -43,7 +43,7 @@ int main(void)
 
 	SOCKADDR_IN sin;
 	sin.sin_family = PF_INET;
-	sin.sin_port = htons(3114);
+	sin.sin_port = htons(2006);
 	sin.sin_addr.s_addr = INADDR_ANY;
 
 	retVal = bind(servSock, (LPSOCKADDR)&sin, sizeof(sin));
@@ -91,7 +91,7 @@ int main(void)
 		}
 		printf("Data received\n");
 		string s = (const char*)szReq;
-		if (s[0] == 's' && s[1] == 't')// Команда на выключение сервера
+		if (s[0] == ':' && s[1] == 's')
 		{
 			char szResp[] = "Server shutdown";
 			retVal = send(clientSock, szResp, 256, 0);
