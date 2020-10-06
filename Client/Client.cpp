@@ -18,7 +18,7 @@ string parsefileName(string str)
 
 int main()
 {
-#pragma region Ñonnect
+#pragma region Connect
    WORD ver = MAKEWORD(2, 2);
    WSADATA wsaData;
    int retVal = 0;
@@ -64,8 +64,8 @@ int main()
 #pragma endregion
 #pragma region Client Logic
    printf("Enter filename or ':s'\n");
-   char pBuf[256];
-   gets_s(pBuf, 256);
+   char pBuf[1024];
+   gets_s(pBuf, 1024);
    printf("Sending request from client\n");
 
    retVal = send(clientSock, (char*)pBuf, strlen((char*)pBuf), 0);
@@ -77,8 +77,8 @@ int main()
       system("pause");
       return 1;
    }
-   char szResponse[256];
-   retVal = recv(clientSock, szResponse, 256, 0);
+   char szResponse[1024];
+   retVal = recv(clientSock, szResponse, 1024, 0);
 
    if (pBuf[0] == ':' && pBuf[1] == 's')
    {
