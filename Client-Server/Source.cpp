@@ -80,8 +80,8 @@ int main(void)
 			return SOCKET_ERROR;
 		}
 		printf("New connection accepted from %s, port %d\n", inet_ntoa(from.sin_addr), htons(from.sin_port));
-		char szReq[256];
-		retVal = recv(clientSock, szReq, 256, 0);
+		char szReq[1024];
+		retVal = recv(clientSock, szReq, 1024, 0);
 
 		if (retVal == SOCKET_ERROR)
 		{
@@ -94,7 +94,7 @@ int main(void)
 		if (s[0] == ':' && s[1] == 's')
 		{
 			char szResp[] = "Server shutdown";
-			retVal = send(clientSock, szResp, 256, 0);
+			retVal = send(clientSock, szResp, 1024, 0);
 			if (retVal == SOCKET_ERROR)
 			{
 				printf("Unable to recv\n");
@@ -106,7 +106,7 @@ int main(void)
 		}
 		else
 		{
-			char szResp[256];
+			char szResp[1024];
 			string fileName = parsefileName(s);
 
 			if (!checkExistence(fileName.c_str()))
@@ -131,7 +131,7 @@ int main(void)
 
 				while (!feof(in))
 				{
-					if ((bytes_read = fread(&szResp, 1, 256, in)) > 0)
+					if ((bytes_read = fread(&szResp, 1, 1024, in)) > 0)
 						send(clientSock, szResp, bytes_read, 0);
 					else
 						break;
