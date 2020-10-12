@@ -89,6 +89,7 @@ int main(void)
 	// Проверка на ошибку при связывании сокета.
 	if (retVal == SOCKET_ERROR)
 	{
+		// Выгружаем динамическую библиотеку.
 		WSACleanup();
 		// Сообщаем об ошибке.
 		printf("Unable to bind\n");
@@ -111,6 +112,7 @@ int main(void)
 		// if - условный оператор, принимающий условия.
 		if (retVal == SOCKET_ERROR)
 		{
+			// Выгружаем динамическую библиотеку.
 			WSACleanup();
 			// Сообщаем об ошибке.
 			printf("Unable to listen\n");
@@ -129,6 +131,7 @@ int main(void)
 		clientSock = accept(servSock, (struct sockaddr*) & from, &fromlen);
 		if (clientSock == INVALID_SOCKET)
 		{
+			// Выгружаем динамическую библиотеку.
 			WSACleanup();
 			// Сообщаем об ошибке.
 			printf("Unable to accept\n");
@@ -141,9 +144,10 @@ int main(void)
 		char szReq[1024];
 		// Принимаем данные от клиента.
 		retVal = recv(clientSock, szReq, 1024, 0);
-
+		// Если ошибка
 		if (retVal == SOCKET_ERROR)
 		{
+			// Выгружаем динамическую библиотеку.
 			WSACleanup();
 			// Сообщаем об ошибке.
 			printf("Unable to recv\n");
@@ -152,17 +156,21 @@ int main(void)
 			// Возвращаем код ошибки.
 			return SOCKET_ERROR;
 		}
+		// Печатаем, что данные приняты.
 		printf("Data received\n");
+		// Строка.
 		string s = (const char*)szReq;
 		// Команда на отключание сервера. (имя файла не может начинаться с ':')
 		if (s[0] == ':' && s[1] == 's')
 		{
+			// Строка для оповещения.
 			char szResp[] = "Server shutdown";
 			// Отсылаем данные клиенту.
 			retVal = send(clientSock, szResp, 1024, 0);
 			// Проверка на ошибку отправки.
 			if (retVal == SOCKET_ERROR)
 			{
+				// Выгружаем динамическую библиотеку.
 				WSACleanup();
 				// Сообщаем об ошибке.
 				printf("Unable to recv\n");
@@ -176,8 +184,10 @@ int main(void)
 			// Перестаем принимать запросы.
 			break;
 		}
+		// Иначе.
 		else
 		{
+			// Переменная для отправки пакетов.
 			char szResp[1024];
 			// Приводим имя файла, которое прислал клиент к виду "файл.расширение\0"
 			string fileName = parsefileName(s);
@@ -186,18 +196,26 @@ int main(void)
 			{
 				// Файла не существует, необходимо оповестить клиента.
 				char err[] = "E";
+				// Отправляем код ошибки клиенту.
 				int ret = send(clientSock, err, sizeof(err), 0);
+				// Если ошибка при отправке
 				if (ret == SOCKET_ERROR)
 				{
+					// Выгружаем динамическую библиотеку.
 					WSACleanup();
+					// Сообщаем об ошибке.
 					printf("Unable to send\n");
+					// Чтобы консоль не закрылась сразу, и человек успел прочитать что случилось.
 					system("pause");
+					// Возвращаем код ошибки.
 					return SOCKET_ERROR;
 				}
+				// Закрываем сокет.
 				closesocket(clientSock);
 				// Продожаем принимать запросы.
 				continue;
 			}
+			// Иначе
 			else
 			{
 				// Файл существует, открываем файл для чтения в байтовом представлении.
